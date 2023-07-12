@@ -1,0 +1,37 @@
+local Lolipops = script.Parent
+local ShotEvent = Lolipops:WaitForChild('Shoot')
+
+local emptySound = Lolipops.Handle:WaitForChild('Empty')
+local ammo = Lolipops.ammo
+local maxAmmo = Lolipops.maxAmmo
+
+local userInput = game:GetService('UserInputService')
+local rechargeSound = Lolipops.Handle:WaitForChild('Recharge')
+local isRecharging = false
+
+Lolipops.Equipped:Connect(function(mouse)
+	mouse.Button1Down:Connect(function()
+		if ammo.Value >0 and not isRecharging then
+			ShotEvent:FireServer(mouse.Hit.Position)
+			ammo.Value -= 1
+		else
+			emptySound:Play()
+		end
+	end)
+end)
+
+userInput.InputBegan:Connect(function(input,gp)
+	if not gp then
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			if input.KeyCode == Enum.KeyCode.R then
+				isRecharging = true
+				
+				rechargeSound:Play()
+				rechargeSound.Ended:Wait()
+				ammo.Value = maxAmmo.Value
+				
+				isRecharging = false
+			end
+		end
+	end
+end)
